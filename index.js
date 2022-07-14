@@ -1,8 +1,7 @@
 console.log('Running')
 
 function check_if_nsfw(predictions) { 
-    if (predictions[0].className === 'Neutral' || predictions[0].className === 'Drawing')  return false
-    return true
+    return !(predictions[0].className === 'Neutral' || predictions[0].className === 'Drawing')
 }
 
 async function image_analysis(img) {
