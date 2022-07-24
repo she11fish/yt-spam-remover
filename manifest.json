@@ -1,17 +1,22 @@
 {
-    "manifest_version": 2,
     "name": "Youtube Spam/Bot Remover",
-    "version": "2.0",
+    "version": "1.0",
+    "manifest_version": 2, 
+    "permissions": [
+        "tabs"
+    ],  
     "content_scripts": [
         {
             "matches": [
                 "<all_urls>"
             ],
-            "js": ["index.js"],
-            "css": ["special.css"]
+            "js": ["content.js"]
         }
     ],
+    "background": {
+            "scripts": ["background.js"]
+    },
     "web_accessible_resources": [
-        "./nsfw.js"
+        "/nsfw.js"
     ]
 }
