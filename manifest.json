@@ -1,22 +1,19 @@
 {
     "name": "Youtube Spam/Bot Remover",
     "version": "1.0",
-    "manifest_version": 2, 
+    "manifest_version": 3, 
     "permissions": [
-        "tabs"
+        "tabs",
+        "activeTab"
     ],  
     "content_scripts": [
         {
-            "matches": [
-                "<all_urls>"
-            ],
+            "matches": ["https://www.youtube.com/*"],
             "js": ["content.js"]
         }
     ],
-    "background": {
-            "scripts": ["background.js"]
-    },
-    "web_accessible_resources": [
-        "/nsfw.js"
-    ]
+    "action": {
+        "default_title": "Youtube Spam Remover",  
+        "default_popup": "popup.html"    
+    }
 }
