@@ -137,7 +137,7 @@ function main() {
                 let spaces = /\s?(^\s+|\s+$)/g
                 let channel_name = comment_box.querySelector('span').innerText.replace(spaces, '')
                 if (blacklist.includes(channel_name)) {
-                    comment_box.style="display: none !important"
+                    comment_box.style = "display: none !important"
                     continue
                 } 
                 let check_duplicate_box = comment_box.getAttribute('check')
@@ -155,7 +155,7 @@ function main() {
                         blacklist.push(channel_name)
                         comments.push(comment)
                         comment_boxes.push(comment_box)
-                        for (let comment_box of comment_boxes) comment_box.style= "display: none !important"
+                        for (let comment_box of comment_boxes) comment_box.style = "display: none !important"
                         delete comment_data[channel_name]
                         continue
                     } 
