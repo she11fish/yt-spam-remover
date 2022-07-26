@@ -44,10 +44,12 @@ function main() {
         console.log('hooked observer')
     }, 1000)
 
+    const blacklist = []
     const reply_data = {}
     const open_reply = new MutationObserver((entries) => {
         let replies_box = entries[0].target.children
         let i = 0
+        console.log('reply checking')
         while (i < replies_box.length) { 
             if (!state) {
                 open_reply.disconnect()
@@ -90,6 +92,7 @@ function main() {
                 var replies = reply_data[channel_name].replies
                 var reply_boxes = reply_data[channel_name].reply_boxes
                 if (check_spam(reply, replies, reply_box, reply_boxes)) {
+                    console.log("it's a spam")
                     blacklist.push(channel_name)
                     replies.push(reply)
                     reply_boxes.push(reply_box)
@@ -99,6 +102,8 @@ function main() {
             } 
             i++
         }
+        console.log(reply_data)
+        console.log(blacklist)
     })
 
     const render_comments = new MutationObserver((entries) => {
@@ -118,9 +123,7 @@ function main() {
         initialize_reply_observers(open_reply)
     })
     
-    const blacklist = []
     const comment_data = {}
-    
     const end_page = new IntersectionObserver(() => {
         console.log('end of page')
         if (!state) {
