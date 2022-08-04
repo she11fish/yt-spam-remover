@@ -12,17 +12,26 @@ chrome.runtime.onMessage.addListener(msg => {
         chrome.runtime.sendMessage({ state: state })
         return
     }
-    if (msg.state === 'on') {
-        console.log('Turning On!')
-        state = true
-        main()
-    } else if (msg.state === 'off') {
-        console.log('Turning Off!')
-        state = false
-    } else {
-        console.log('Error: Could not Identify state')
+
+    switch (msg.state) {
+        case 'on': {
+            console.log('Turning On!')
+            state = true
+            main()
+            break
+        }
+        case 'off': {
+            console.log('Turning Off!')
+            state = false
+            break
+        }
+        default: {
+            console.log('Error: Could not Identify state')
+            break
+        }
+        
     }
-});
+})
 
 function initialize_reply_observers(reply_comments) {
     const config = { childList: true }
@@ -119,67 +128,66 @@ function reply_callback(entries) {
 }
 
 function end_page_callback() {
-    {
-        if (!state) {
-            end_page.disconnect()
+    if (!state) {
+        end_page.disconnect()
+        return
+    }
+    let comment_box = document.querySelector(
+        '#primary ytd-item-section-renderer > #contents > ytd-continuation-item-renderer'
+        )
+    let comments_added = 20
+    for (let i = comments_added - 1; i >= 0; i--) {
+        // Check if comment_box is a real comment
+        if (!comment_box || !comment_box.previousSibling) 
+            continue 
+        comment_box = comment_box.previousSibling
+        
+        // Check if comment_box is a screen loader
+        if (comment_box.nodeName === screen_loader) 
             return
-        }
-        let comment_box = document.querySelector(
-            '#primary ytd-item-section-renderer > #contents > ytd-continuation-item-renderer'
-            )
-        for (let i = 19; i >= 0; i--) {
-            // Check if comment_box is a real comment
-            if (!comment_box || !comment_box.previousSibling) 
-                continue 
-            comment_box = comment_box.previousSibling
-            
-            // Check if comment_box is a screen loader
-            if (comment_box.nodeName === screen_loader) 
-                return
 
-            let channel_name = comment_box.querySelector('span').innerText.trim()
+        let channel_name = comment_box.querySelector('span').innerText.trim()
 
 
-            if (blacklist.includes(channel_name)) {
-                comment_box.style = "display: none !important"
+        if (blacklist.includes(channel_name)) {
+            comment_box.style = "display: none !important"
+            continue
+        } 
+
+        // Check if comment has already been checked before
+        let check_duplicate_box = comment_box.getAttribute('check')
+        if (check_duplicate_box) 
+            continue 
+        comment_box.setAttribute("check", "true")
+
+        let comment = comment_box.querySelector('ytd-expander yt-formatted-string').innerText
+
+        if (!comment_data.hasOwnProperty(channel_name)) {
+            comment_data[channel_name] = { 
+                comment_boxes: [comment_box], 
+                comments: [comment] 
+            }
+        } else {
+            var comments = comment_data[channel_name].comments
+            var comment_boxes = comment_data[channel_name].comment_boxes
+            if (check_spam(comment, comments, comment_box, comment_boxes)) {
+                blacklist.push(channel_name)
+
+                comments.push(comment)
+                comment_boxes.push(comment_box)
+
+                for (let comment_box of comment_boxes) 
+                    comment_box.style = "display: none !important"
+                delete comment_data[channel_name]
                 continue
             } 
+        } 
 
-            // Check if comment has already been checked before
-            let check_duplicate_box = comment_box.getAttribute('check')
-            if (check_duplicate_box) 
-                continue 
-            comment_box.setAttribute("check", "true")
-
-            let comment = comment_box.querySelector('ytd-expander yt-formatted-string').innerText
-
-            if (!comment_data.hasOwnProperty(channel_name)) {
-                comment_data[channel_name] = { 
-                    comment_boxes: [comment_box], 
-                    comments: [comment] 
-                }
-            } else {
-                var comments = comment_data[channel_name].comments
-                var comment_boxes = comment_data[channel_name].comment_boxes
-                if (check_spam(comment, comments, comment_box, comment_boxes)) {
-                    blacklist.push(channel_name)
-
-                    comments.push(comment)
-                    comment_boxes.push(comment_box)
-
-                    for (let comment_box of comment_boxes) 
-                        comment_box.style = "display: none !important"
-                    delete comment_data[channel_name]
-                    continue
-                } 
-            } 
-
-            // Check if comment contains url
-            let comment_html = comment_box.querySelector('ytd-expander yt-formatted-string').innerHTML
-            if (comment_contains_url(comment_html)) {
-                blacklist.push(channel_name)
-                comment_box.style="display: none !important"
-            }
+        // Check if comment contains url
+        let comment_html = comment_box.querySelector('ytd-expander yt-formatted-string').innerHTML
+        if (comment_contains_url(comment_html)) {
+            blacklist.push(channel_name)
+            comment_box.style="display: none !important"
         }
     }
 }

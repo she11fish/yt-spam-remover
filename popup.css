@@ -1,16 +1,19 @@
 html, body {
     margin: 0;
     padding: 0;
+    
     width: 400px;
     height: 400px;
 }
 
 button {
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    position: relative;
     top: 25%;
+
     margin: 0px 75px 0px 75px;
     width: 250px;
     height: 200px;
